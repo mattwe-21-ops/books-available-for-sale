@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Libri Scolastici Usati — Catalogo</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site">
+    <div class="wrap">
+      <h1>📚 Libri in Vendita (1ª-2ª-3ª Media)</h1>
+      <nav><a href="index.html" class="active">Catalogo</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>Catalogo Pubblico Libri Usati</h2>
+      <p>Verifica la disponibilità dei testi. Il pallino colorato indica lo stato in tempo reale.</p>
+    </section>
+
+    <div class="legend">
+      <span><i class="g"></i> Disponibile</span>
+      <span><i class="y"></i> Prenotato</span>
+      <span><i class="r"></i> Venduto</span>
+    </div>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Cerca per titolo, materia, parolina chiave…">
+      <select id="filter">
+        <option value="">Tutti gli stati</option>
+        <option value="disponibile">Solo disponibili</option>
+        <option value="prenotato">Solo prenotati</option>
+        <option value="venduto">Solo venduti</option>
+      </select>
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <footer class="site">Sito statico — Catalogo Libri scolastici.</footer>
+
+  <script src="js/data.js"></script>
+  <script>
+    const grid = document.getElementById('grid');
+    const searchInput = document.getElementById('search');
+    const filterSelect = document.getElementById('filter');
+
+    function renderCatalogo() {
+      const libri = ottieniLibri();
+      const query = searchInput.value.toLowerCase();
+      const filtroStato = filterSelect.value;
+
+      grid.innerHTML = '';
+
+      libri.forEach(libro => {
+        const matchesSearch = libro.titolo.toLowerCase().includes(query) || libro.materia.toLowerCase().includes(query);
+        const matchesStato = filtroStato === '' || libro.stato === filtroStato;
+
+        if (matchesSearch && matchesStato) {
+          const card = document.createElement('div');
+          card.className = `card ${libro.stato}`;
+          
+          let badgeColor = 'g';
+          if(libro.stato === 'prenotato') badgeColor = 'y';
+          if(libro.stato === 'venduto') badgeColor = 'r';
+
+          card.innerHTML = `
+            <div class="badge-stato"><i class="${badgeColor}"></i> ${libro.stato.toUpperCase()}</div>
+            <img src="foto_libri/${libro.id}/1.jpg" alt="${libro.titolo}" onerror="this.src='https://placehold.co/200x260?text=Nessuna+Foto'">
+            <div class="card-body">
+              <span class="materia">${libro.materia}</span>
+              <h3>${libro.titolo}</h3>
+              <p class="prezzo">${libro.prezzo} €</p>
+              <p class="info">${libro.info}</p>
+            </div>
+          `;
+          grid.appendChild(card);
+        }
+      });
+    }
+
+    searchInput.addEventListener('input', renderCatalogo);
+    filterSelect.addEventListener('change', renderCatalogo);
+    window.addEventListener('DOMContentLoaded', renderCatalogo);
+  </script>
+</body>
+</html>
